@@ -44,7 +44,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'ica-yac: ica_yac.yac:run_yac()'
+            'ica-yac = ica_yac.yac:run_yac'
         ]
     },
     install_requires=REQUIRES,

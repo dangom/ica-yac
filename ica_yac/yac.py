@@ -9,13 +9,17 @@ import argparse
 import ast
 import os.path
 import pickle
+import warnings
 
 import numpy as np
 import pandas as pd
-import tsfresh
 from sklearn.ensemble import RandomForestClassifier
 
 from .externals import fslutils
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import tsfresh
 
 
 def _last_line(file):
@@ -83,7 +87,8 @@ def load_fsl(directories, labels_file='hand_classification.txt'):
 
 def available_architectures():
     return list(map(lambda x: x[:-4],
-                    os.listdir(os.path.join(__file__, 'classifiers'))))
+                    os.listdir(os.path.join(os.path.dirname(__file__),
+                                            'classifiers'))))
 
 
 class YetAnotherClassifier():
@@ -120,7 +125,7 @@ class YetAnotherClassifier():
     def predict(self, data):
         if not self.trained:
             assert self.architecture is not None, 'No classifier selected and no fit performed.'
-            filename = os.path.join(__file__,
+            filename = os.path.join(os.path.dirname(__file__),
                                     'classifiers', self.architecture + '.pkl')
             with open(filename, 'rb') as f:
                 arch = pickle.load(f)
@@ -143,7 +148,8 @@ class YetAnotherClassifier():
         dumpdata = {'clf': self.classifier,
                     'settings': self.settings,
                     'relevant_features': self.relevant_features}
-        filename = os.path.join(__file__, 'classifiers', name + '.pkl')
+        filename = os.path.join(os.path.dirname(__file__),
+                                'classifiers', name + '.pkl')
         with open(filename, 'wb+') as f:
             pickle.dump(dumpdata, f)
 
@@ -200,7 +206,7 @@ def _cli_parser():
     parser_t.add_argument('--force', action='store_true',
                           help='Overwrite existing classifier architecture.')
 
-    parser_t.add_defaults(func=train)
+    parser_t.set_defaults(func=train)
 
     # Create the parser for the predict command
     parser_p = subparsers.add_parser('predict', help='Generate prediction')
