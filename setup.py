@@ -24,15 +24,15 @@ setup(
     author_email='d.gomez@posteo.org',
     maintainer='Daniel Gomez',
     maintainer_email='d.gomez@posteo.org',
-    url='https://github.com/_/ICA-YAC',
+    url='https://github.com/dangom/ICA-YAC',
     license='Apache-2.0',
-
+    include_package_data=True,
     keywords=[
         '',
     ],
 
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
@@ -42,7 +42,11 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
-
+    entry_points={
+        'console_scripts': [
+            'ica-yac: ica_yac.yac:run_yac()'
+        ]
+    },
     install_requires=REQUIRES,
     tests_require=['coverage', 'pytest'],
 

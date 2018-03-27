@@ -1,3 +1,11 @@
+"""
+ICA-YAC (Yet Another Classifier)
+
+ICA-YAC generates a labels file for your ICA components. It does a binary
+classification (Signal / Noise) and saves the results to a file in a format
+compatible with FSLEYES.
+"""
+import argparse
 import ast
 import os.path
 import pickle
@@ -62,7 +70,7 @@ def load_fsl(directories, labels_file='hand_classification.txt'):
 
         raw_labels = [[c-1 for c in ast.literal_eval(_last_line(x))]
                       for x in [os.path.join(dir_, labels_file)
-                            for dir_ in directories]]
+                                for dir_ in directories]]
         labels = [[x not in lst for x in range(n_components[index])]
                   for index, lst in enumerate(raw_labels)]
 
@@ -71,6 +79,11 @@ def load_fsl(directories, labels_file='hand_classification.txt'):
         yac_labels = None
 
     return yac_data, yac_labels
+
+
+def available_architectures():
+    return list(map(lambda x: x[:-4],
+                    os.listdir(os.path.join(__file__, 'classifiers'))))
 
 
 class YetAnotherClassifier():
@@ -91,7 +104,7 @@ class YetAnotherClassifier():
                                          column_sort='level_1',
                                          default_fc_parameters=self.def_settings)
 
-        tsfresh.utilities.dataframe_functions.impute(feats) # Remove NaNs, if any:
+        tsfresh.utilities.dataframe_functions.impute(feats) # Remove NaNs, if any
         relevant_feats = tsfresh.select_features(feats,
                                                  labels,
                                                  fdr_level=1e-18)
@@ -133,3 +146,89 @@ class YetAnotherClassifier():
         filename = os.path.join(__file__, 'classifiers', name + '.pkl')
         with open(filename, 'wb+') as f:
             pickle.dump(dumpdata, f)
+
+
+def train(args):
+
+    data, labels = load_fsl(args.inputdir, labels_file=args.labelfile)
+    yac = YetAnotherClassifier()
+    yac.fit(data, labels)
+
+    if os.path.exists(args.name) and not args.force:
+        msg = 'Attempt to overwrite already existing architecture file. '
+        msg += 'If this is the intended behaviour, try again with --force'
+        raise FileExistsError(msg)
+
+    yac.dump(args.name)
+
+
+def predict(args):
+    data, _l = load_fsl(args.inputdir, labels_file=None)
+    yac = YetAnotherClassifier(args.architecture)
+    prediction = yac.predict(data)
+    if os.path.isabs(args.labelfile):
+        target_file = args.labelfile
+    else:
+        target_file = os.path.join(args.inputdir, args.labelfile)
+
+    if os.path.exists(target_file) and not args.force:
+        msg = 'Attempt to overwrite already existing label file. '
+        msg += 'If this is the intended behaviour, try again with --force'
+        raise FileExistsError(msg)
+
+    save_prediction(prediction, target_file)
+
+
+def _cli_parser():
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    subparsers = parser.add_subparsers(help='sub-command help')
+
+    # Create the parser for the training command
+    parser_t = subparsers.add_parser('train', help='Train YAC on new datasets')
+
+    parser_t.add_argument('inputdir', type=str,
+                          help='Input directory with melodic_mix and hand_classification')
+
+    parser_t.add_argument('name', type=str,
+                          help='Target name for classifier \"architecture\"')
+
+    parser_t.add_argument('-l', '--labelfile', type=str,
+                          default='hand_classification.txt',
+                          help='Name of classification file. Default hand_classification.txt')
+
+    parser_t.add_argument('--force', action='store_true',
+                          help='Overwrite existing classifier architecture.')
+
+    parser_t.add_defaults(func=train)
+
+    # Create the parser for the predict command
+    parser_p = subparsers.add_parser('predict', help='Generate prediction')
+
+    parser_p.add_argument('inputdir', type=str,
+                          help='Input directory with melodic_mix')
+
+    parser_p.add_argument('-l', '--labelfile', type=str,
+                          default='hand_classification.txt',
+                          help='Name of classification file. Default hand_classification.txt')
+
+    parser_p.add_argument('--force', action='store_true',
+                          help='Overwrite existing hand label.')
+
+    parser_p.add_argument('-a', '--architecture', type=str,
+                          default='MESH', choices=available_architectures(),
+                          help='Name of classifier \"architecture\"')
+    parser_p.set_defaults(func=predict)
+
+    return parser
+
+
+def run_yac():
+
+    parser = _cli_parser()
+    args = parser.parse_args()
+    args.func(args)
+
+
+if __name__ == '__main__':
+    run_yac()
