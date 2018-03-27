@@ -13,19 +13,19 @@ with open('ica_yac/__init__.py', 'r') as f:
 with open('README.rst', 'r', encoding='utf-8') as f:
     readme = f.read()
 
-REQUIRES = []
+REQUIRES = ['numpy', 'pandas', 'sklearn', 'tsfresh']
 
 setup(
     name='ICA-YAC',
     version=version,
     description='',
     long_description=readme,
-    author='U.N. Owen',
-    author_email='me@un.known',
-    maintainer='U.N. Owen',
-    maintainer_email='me@un.known',
+    author='Daniel Gomez',
+    author_email='d.gomez@posteo.org',
+    maintainer='Daniel Gomez',
+    maintainer_email='d.gomez@posteo.org',
     url='https://github.com/_/ICA-YAC',
-    license='MIT/Apache-2.0',
+    license='Apache-2.0',
 
     keywords=[
         '',
@@ -34,11 +34,9 @@ setup(
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
