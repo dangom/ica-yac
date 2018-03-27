@@ -11,6 +11,7 @@ import os.path
 import pickle
 import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -185,6 +186,21 @@ def predict(args):
     save_prediction(prediction, target_file)
 
 
+def visualize(args):
+    data, labels = load_fsl(args.inputdir, labels_file=args.labelfile)
+    visdata = np.vstack(data.groupby('level_0')[0].apply(np.hstack).values).T
+    fig, axes = plt.subplots(nrows=15, ncols=10, figsize=plt.figaspect(0.5))
+    for index, item in enumerate(axes.flatten()):
+        color = 'g' if index in np.nonzero(labels)[0] else 'r'
+        item.plot(visdata[:200, index], color, linewidth=1)
+        for k, v in item.spines.items():
+            v.set_visible(False)
+        item.set_xticks([])
+        item.set_yticks([])
+    fig.suptitle('YAC Classification', fontsize=18)
+    plt.show()
+
+
 def _cli_parser():
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -225,6 +241,18 @@ def _cli_parser():
                           default='MESH', choices=available_architectures(),
                           help='Name of classifier \"architecture\"')
     parser_p.set_defaults(func=predict)
+
+    # Create a parser for visualization
+    parser_v = subparsers.add_parser('visualize', help='Plot component classification')
+
+    parser_v.add_argument('inputdir', type=str,
+                          help='Input directory with melodic_mix and hand_classification')
+
+    parser_v.add_argument('-l', '--labelfile', type=str,
+                          default='hand_classification.txt',
+                          help='Name of classification file. Default hand_classification.txt')
+
+    parser_v.set_defaults(func=visualize)
 
     return parser
 
