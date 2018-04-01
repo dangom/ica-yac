@@ -114,7 +114,7 @@ class YetAnotherClassifier():
         tsfresh.utilities.dataframe_functions.impute(feats) # Remove NaNs, if any
         relevant_feats = tsfresh.select_features(feats,
                                                  labels,
-                                                 fdr_level=1e-18)
+                                                 fdr_level=1e-15)
 
         self.relevant_features = relevant_feats.columns
         self.settings = tsfresh.feature_extraction.settings.from_columns(relevant_feats)
