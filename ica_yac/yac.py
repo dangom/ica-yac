@@ -158,14 +158,14 @@ class YetAnotherClassifier():
 
 def train(args):
 
-    data, labels = load_fsl(args.inputdir, labels_file=args.labelfile)
-    yac = YetAnotherClassifier()
-    yac.fit(data, labels)
-
     if os.path.exists(args.name) and not args.force:
         msg = 'Attempt to overwrite already existing architecture file. '
         msg += 'If this is the intended behaviour, try again with --force'
         raise FileExistsError(msg)
+
+    data, labels = load_fsl(args.inputdir, labels_file=args.labelfile)
+    yac = YetAnotherClassifier()
+    yac.fit(data, labels)
 
     yac.dump(args.name)
 
