@@ -236,8 +236,8 @@ def _cli_parser():
                           help='Input directory with melodic_mix')
 
     parser_p.add_argument('-l', '--labelfile', type=str,
-                          default='hand_classification.txt',
-                          help='Name of classification file. Default hand_classification.txt')
+                          default='yac_classification.txt',
+                          help='Name of classification file. Default yac_classification.txt')
 
     parser_p.add_argument('--force', action='store_true',
                           help='Overwrite existing hand label.')
@@ -254,8 +254,8 @@ def _cli_parser():
                           help='Input directory with melodic_mix and hand_classification')
 
     parser_v.add_argument('-l', '--labelfile', type=str,
-                          default='hand_classification.txt',
-                          help='Name of classification file. Default hand_classification.txt')
+                          default='yac_classification.txt',
+                          help='Name of classification file. Default yac_classification.txt')
 
     parser_v.set_defaults(func=visualize)
 
