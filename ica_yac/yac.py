@@ -171,9 +171,7 @@ def train(args):
 
 
 def predict(args):
-    data, _l = load_fsl(args.inputdir, labels_file=None)
-    yac = YetAnotherClassifier(args.architecture)
-    prediction = yac.predict(data)
+
     if os.path.isabs(args.labelfile):
         target_file = args.labelfile
     else:
@@ -183,6 +181,10 @@ def predict(args):
         msg = 'Attempt to overwrite already existing label file. '
         msg += 'If this is the intended behaviour, try again with --force'
         raise FileExistsError(msg)
+
+    data, _l = load_fsl(args.inputdir, labels_file=None)
+    yac = YetAnotherClassifier(args.architecture)
+    prediction = yac.predict(data)
 
     save_prediction(prediction, target_file)
 
