@@ -193,7 +193,11 @@ def visualize(args):
     fig, axes = plt.subplots(nrows=15, ncols=10, figsize=plt.figaspect(0.5))
     for index, item in enumerate(axes.flatten()):
         color = 'g' if index in np.nonzero(labels)[0] else 'r'
-        item.plot(visdata[:200, index], color, linewidth=1)
+        try:
+            item.plot(visdata[:200, index], color, linewidth=1)
+        except IndexError:
+            # TODO Better handling of n_components != 150
+            pass
         for k, v in item.spines.items():
             v.set_visible(False)
         item.set_xticks([])
