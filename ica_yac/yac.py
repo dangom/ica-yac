@@ -210,8 +210,8 @@ def _cli_parser():
     # Create the parser for the training command
     parser_t = subparsers.add_parser('train', help='Train YAC on new datasets')
 
-    parser_t.add_argument('inputdir', type=str,
-                          help='Input directory with melodic_mix and hand_classification')
+    parser_t.add_argument('inputdir', type=str, nargs='+',
+                          help='Input directory(ies) with melodic_mix and hand_classification')
 
     parser_t.add_argument('name', type=str,
                           help='Target name for classifier \"architecture\"')
