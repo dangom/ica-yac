@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 ICA-YAC (Yet Another Classifier)
 
