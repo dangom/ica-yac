@@ -60,13 +60,19 @@ def load_fsl(directories, labels_file='hand_classification.txt'):
 
     data = [pd.DataFrame(mix).T.stack().reset_index()
             for mix in mixing_matrices]
+
     n_components = [x.shape[1] for x in mixing_matrices]
 
+    # Before concatenating all the data, we change level_0, which will
+    # correspond to tsfresh's COLUMN_ID so that components of different
+    # scans get different numbers.
     if len(data) > 1:
-        for index, (n_comps, dset) in enumerate(zip(n_components[:-1],
+        for index, (n_comps, dset) in enumerate(zip(np.cumsum(n_components),
                                                     data[1:])):
             dset['level_0'] = dset['level_0'] + n_comps
 
+    # Now, because each dset has different component numbers, we can concatenate
+    # them without problem.
     yac_data = pd.concat(data, ignore_index=True)
 
     if labels_file is not None:
@@ -80,6 +86,8 @@ def load_fsl(directories, labels_file='hand_classification.txt'):
                   for index, lst in enumerate(raw_labels)]
 
         yac_labels = pd.Series(sum(labels, []))
+        # We should have as many component IDs as we have labels.
+        assert np.unique(yac_data['level_0']).shape == labels.shape
     else:
         yac_labels = None
 
