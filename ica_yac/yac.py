@@ -108,15 +108,17 @@ class YetAnotherClassifier():
 
     def_settings = tsfresh.feature_extraction.EfficientFCParameters()
 
-    def __init__(self, architecture=None):
+    def __init__(self, architecture=None, distributor=None):
         self.trained = False
         self.architecture = architecture
+        self.distributor = distributor
 
     def fit(self, data, labels):
         feats = tsfresh.extract_features(data,
                                          column_id='level_0',
                                          column_sort='level_1',
-                                         default_fc_parameters=self.def_settings)
+                                         default_fc_parameters=self.def_settings,
+                                         distributor=self.distributor)
 
         tsfresh.utilities.dataframe_functions.impute(feats) # Remove NaNs, if any
         relevant_feats = tsfresh.select_features(feats,
