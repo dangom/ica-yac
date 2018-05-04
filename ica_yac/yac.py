@@ -121,9 +121,7 @@ class YetAnotherClassifier():
                                          distributor=self.distributor)
 
         tsfresh.utilities.dataframe_functions.impute(feats) # Remove NaNs, if any
-        relevant_feats = tsfresh.select_features(feats,
-                                                 labels,
-                                                 fdr_level=1e-18)
+        relevant_feats = tsfresh.select_features(feats, labels, fdr_level=1e-14)
 
         self.relevant_features = relevant_feats.columns
         self.settings = tsfresh.feature_extraction.settings.from_columns(relevant_feats)
