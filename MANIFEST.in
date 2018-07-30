@@ -1,3 +1,3 @@
 include LICENSE-APACHE
 include README.rst
-include ica-yac/classifiers *
+include ica_yac/classifiers/*.pkl

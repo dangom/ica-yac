@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 ICA-YAC (Yet Another Classifier)
 
@@ -122,7 +123,9 @@ class YetAnotherClassifier():
                                          distributor=self.distributor)
 
         tsfresh.utilities.dataframe_functions.impute(feats) # Remove NaNs, if any
-        relevant_feats = tsfresh.select_features(feats, labels, fdr_level=1e-14)
+        relevant_feats = tsfresh.select_features(feats,
+                                                 labels,
+                                                 fdr_level=1e-15)
 
         self.relevant_features = relevant_feats.columns
         self.settings = tsfresh.feature_extraction.settings.from_columns(relevant_feats)
@@ -166,22 +169,20 @@ class YetAnotherClassifier():
 
 def train(args):
 
-    data, labels = load_fsl(args.inputdir, labels_file=args.labelfile)
-    yac = YetAnotherClassifier()
-    yac.fit(data, labels)
-
     if os.path.exists(args.name) and not args.force:
         msg = 'Attempt to overwrite already existing architecture file. '
         msg += 'If this is the intended behaviour, try again with --force'
         raise FileExistsError(msg)
 
+    data, labels = load_fsl(args.inputdir, labels_file=args.labelfile)
+    yac = YetAnotherClassifier()
+    yac.fit(data, labels)
+
     yac.dump(args.name)
 
 
 def predict(args):
-    data, _l = load_fsl(args.inputdir, labels_file=None)
-    yac = YetAnotherClassifier(args.architecture)
-    prediction = yac.predict(data)
+
     if os.path.isabs(args.labelfile):
         target_file = args.labelfile
     else:
@@ -192,6 +193,10 @@ def predict(args):
         msg += 'If this is the intended behaviour, try again with --force'
         raise FileExistsError(msg)
 
+    data, _l = load_fsl(args.inputdir, labels_file=None)
+    yac = YetAnotherClassifier(args.architecture)
+    prediction = yac.predict(data)
+
     save_prediction(prediction, target_file)
 
 
@@ -201,7 +206,11 @@ def visualize(args):
     fig, axes = plt.subplots(nrows=15, ncols=10, figsize=plt.figaspect(0.5))
     for index, item in enumerate(axes.flatten()):
         color = 'g' if index in np.nonzero(labels)[0] else 'r'
-        item.plot(visdata[:200, index], color, linewidth=1)
+        try:
+            item.plot(visdata[:200, index], color, linewidth=1)
+        except IndexError:
+            # TODO Better handling of n_components != 150
+            pass
         for k, v in item.spines.items():
             v.set_visible(False)
         item.set_xticks([])
@@ -218,8 +227,8 @@ def _cli_parser():
     # Create the parser for the training command
     parser_t = subparsers.add_parser('train', help='Train YAC on new datasets')
 
-    parser_t.add_argument('inputdir', type=str,
-                          help='Input directory with melodic_mix and hand_classification')
+    parser_t.add_argument('inputdir', type=str, nargs='+',
+                          help='Input directory(ies) with melodic_mix and hand_classification')
 
     parser_t.add_argument('name', type=str,
                           help='Target name for classifier \"architecture\"')
@@ -240,8 +249,8 @@ def _cli_parser():
                           help='Input directory with melodic_mix')
 
     parser_p.add_argument('-l', '--labelfile', type=str,
-                          default='hand_classification.txt',
-                          help='Name of classification file. Default hand_classification.txt')
+                          default='yac_classification.txt',
+                          help='Name of classification file. Default yac_classification.txt')
 
     parser_p.add_argument('--force', action='store_true',
                           help='Overwrite existing hand label.')
@@ -258,8 +267,8 @@ def _cli_parser():
                           help='Input directory with melodic_mix and hand_classification')
 
     parser_v.add_argument('-l', '--labelfile', type=str,
-                          default='hand_classification.txt',
-                          help='Name of classification file. Default hand_classification.txt')
+                          default='yac_classification.txt',
+                          help='Name of classification file. Default yac_classification.txt')
 
     parser_v.set_defaults(func=visualize)
 
