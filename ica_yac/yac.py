@@ -87,7 +87,8 @@ def load_fsl(directories, labels_file='hand_classification.txt'):
 
         yac_labels = pd.Series(sum(labels, []))
         # We should have as many component IDs as we have labels.
-        assert np.unique(yac_data['level_0']).shape == labels.shape
+
+        assert np.unique(yac_data['level_0']).shape == yac_labels.shape
     else:
         yac_labels = None
 
